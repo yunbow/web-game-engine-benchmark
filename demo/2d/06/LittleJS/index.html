@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>テーマ6 タワーディフェンス(経路探索) ― LittleJS</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0; background: #0c1018; height: 100%;
+      overflow: hidden; font-family: "Consolas", "Courier New", monospace;
+    }
+    /* three.js 版と同じ固定 960x540 のステージ。横方向は中央寄せ・上端配置。 */
+    #game-container { position: relative; width: 960px; height: 540px; margin: 0 auto; }
+    /* LittleJS は body 直下に canvas を生成し、毎フレーム inline style
+       (top/left/transform/width=100%) を再適用してウィンドウ全体へスケールする。
+       それを #game-container に取り込み(下部スクリプト)、!important で 960x540 固定に上書きする。
+       inline 非!important より stylesheet の !important が勝つため確実に効く。 */
+    #game-container canvas {
+      position: absolute !important;
+      left: 0 !important; top: 0 !important;
+      width: 960px !important; height: 540px !important;
+      transform: none !important;
+      display: block;
+    }
+    #hud {
+      background: rgba(10, 16, 22, 0.60); border-radius: 6px; padding: 5px 8px;
+      position: absolute; left: 8px; top: 6px; color: #eaf2ff;
+      font-size: 13px; line-height: 1.45; text-shadow: 0 1px 2px #000, 0 0 3px #000;
+      pointer-events: none; white-space: pre; z-index: 10;
+    }
+    #help {
+      position: absolute; left: 0; right: 0; bottom: 6px; text-align: center;
+      background: rgba(10, 16, 22, 0.45); border-radius: 6px; padding: 5px 8px; color: #8aa0ff;
+      font-size: 12px; line-height: 1.4; text-shadow: 0 0 3px #000;
+      pointer-events: none; z-index: 10;
+    }
+    #title {
+      position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
+      color: #ffe66d; font: 700 30px/1.4 ui-monospace, monospace; text-shadow: 0 2px 8px #000;
+      pointer-events: none; z-index: 11;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <div id="hud">loading...</div>
+    <div id="help">
+      ENTER : start ・ 左クリック : タワー設置(25G) ・ 右クリック : 撤去 ・ + / - : 敵数 増減 ・ R : リスタート
+    </div>
+    <div id="title">PRESS ENTER TO START<br><span style="font-size:15px; color:#bcd">— DEMO / ATTRACT MODE —</span></div>
+  </div>
+
+  <!-- LittleJS engine via CDN. Primary: unpkg. If it fails to load, the
+       jsDelivr fallback below is injected. See README for details.
+       注意: 素の unpkg は ESM を返すため /dist/littlejs.min.js (classic global build) を直読みする。 -->
+  <script>
+    window.addEventListener('error', function (e) {
+      // 主CDN(unpkg)の script タグが失敗したら jsDelivr ミラーへ切替。
+      if (e && e.target && e.target.tagName === 'SCRIPT' &&
+          /unpkg\.com\/littlejsengine/.test(e.target.src || '')) {
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/littlejsengine/dist/littlejs.min.js';
+        s.onload = function () {
+          var g = document.createElement('script');
+          g.src = 'game.js';
+          document.body.appendChild(g);
+        };
+        document.body.appendChild(s);
+      }
+    }, true);
+  </script>
+  <script src="https://unpkg.com/littlejsengine/dist/littlejs.min.js"></script>
+  <script>
+    // LittleJS が確実にロードできた場合のみ game.js を読む(主経路)。
+    if (window.LittleJS || window.engineInit) {
+      var g = document.createElement('script');
+      g.src = 'game.js';
+      document.body.appendChild(g);
+    }
+  </script>
+  <script>
+    // エンジンが body 直下に生成した canvas を #game-container 内へ取り込む。
+    // 生成は engineInit 後なので、出現するまで rAF で待ってから移動する。
+    (function adoptCanvases() {
+      var gc = document.getElementById('game-container');
+      var canvases = document.querySelectorAll('body > canvas');
+      if (gc && canvases.length) {
+        canvases.forEach(function (c) { gc.appendChild(c); });
+      } else {
+        requestAnimationFrame(adoptCanvases);
+      }
+    })();
+  </script>
+</body>
+</html>

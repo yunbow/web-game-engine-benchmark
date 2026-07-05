@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>テーマ9 アイソメトリック都市/農場 ― Phaser 4</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #101418;
+      color: #e0e0e0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      overflow: hidden;
+      height: 100%;
+    }
+    /* three.js 版と同じ固定 960x540 のステージ。横方向は中央寄せ・上端配置。 */
+    #game-container { position: relative; width: 960px; height: 540px; margin: 0 auto; }
+    #help {
+      position: absolute; left: 0; right: 0; bottom: 6px; text-align: center;
+      background: rgba(10, 16, 22, 0.45); border-radius: 6px; padding: 5px 8px; color: #8aa0ff;
+      font-size: 12px; line-height: 1.4;
+      text-shadow: 0 0 3px #000; pointer-events: none; z-index: 10;
+    }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <div id="help">
+      ← → ↑ ↓ / WASD: カメラスクロール ・ + / - : ユニット数 増減 ・ G: グリッド ・ R: リセット
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@4/dist/phaser.min.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

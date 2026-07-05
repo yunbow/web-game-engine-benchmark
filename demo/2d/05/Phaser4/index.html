@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>テーマ5 横スクロールアクション ― Phaser 4</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #101418;
+      color: #e0e0e0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      overflow: hidden;
+      height: 100%;
+    }
+    #wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    #game-container {
+      position: relative;
+      width: 960px;
+      height: 540px;
+      box-shadow: 0 0 24px rgba(0, 0, 0, 0.6);
+    }
+    #help {
+      position: absolute; left: 0; right: 0; bottom: 6px; text-align: center;
+      background: rgba(10, 16, 22, 0.45); border-radius: 6px; padding: 5px 8px;
+      margin-
+      font-size: 12px;
+      color: #8a99a8;
+    }
+    #title {
+      position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
+      color: #ffe66d; font: 700 30px/1.4 ui-monospace, monospace; text-shadow: 0 2px 8px #000;
+      pointer-events: none; z-index: 11;
+    }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <div id="wrap">
+    <div id="game-container">
+      <div id="title">PRESS ENTER TO START<br><span style="font-size:15px; color:#bcd">— DEMO / ATTRACT MODE —</span></div>
+    </div>
+    <div id="help">
+      ENTER: start ・ ← → / A D: 移動 ・ Space / ↑ / W: ジャンプ ・ Shift: ダッシュ ・ + / - : 敵数 増減
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@4/dist/phaser.min.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

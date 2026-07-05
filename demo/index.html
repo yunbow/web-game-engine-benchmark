@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Web Game Engine Benchmark — デモ一覧</title>
+<style>
+  :root { color-scheme: dark; }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:#0d1117;color:#c9d1d9;font:14px/1.6 "Segoe UI","Hiragino Kaku Gothic ProN","Meiryo",sans-serif;}
+  header{padding:18px 22px;border-bottom:1px solid #21262d;background:#10151c;}
+  h1{font-size:18px;margin:0 0 4px;color:#b6ffce;}
+  .sub{color:#8aa0ff;font-size:12px;}
+  .note{color:#6e7681;font-size:11px;margin-top:6px;}
+  .note code{background:#161b22;border:1px solid #30363d;border-radius:4px;padding:1px 5px;}
+  main{padding:18px 22px;max-width:1200px;margin:0 auto;}
+  .tabs{display:flex;gap:8px;margin-bottom:16px;}
+  .tab{background:#21262d;color:#c9d1d9;border:1px solid #30363d;border-radius:8px;padding:8px 18px;cursor:pointer;font:inherit;}
+  .tab.active{background:#1f6feb;color:#fff;border-color:#1f6feb;}
+  .bench{margin-bottom:18px;}
+  .bench a{display:inline-block;background:#238636;color:#fff;text-decoration:none;border-radius:8px;padding:8px 16px;font-size:13px;}
+  .bench a:hover{background:#2ea043;}
+  .grid{display:none;}
+  .grid.active{display:block;}
+  .theme{margin-bottom:14px;border:1px solid #21262d;border-radius:10px;overflow:hidden;}
+  .theme-hd{background:#161b22;padding:9px 14px;display:flex;align-items:baseline;gap:10px;}
+  .theme-no{color:#ffd479;font-weight:700;font-size:13px;min-width:34px;}
+  .theme-ttl{color:#e6edf3;font-size:13px;}
+  .engs{display:flex;flex-wrap:wrap;gap:8px;padding:11px 14px;}
+  .engs a{display:inline-block;text-decoration:none;background:#21262d;color:#9ad;border:1px solid #30363d;border-radius:7px;padding:6px 13px;font-size:12px;transition:.12s;}
+  .engs a:hover{background:#1f6feb;color:#fff;border-color:#1f6feb;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Web Game Engine Benchmark — デモ一覧</h1>
+  <div class="sub">同一仕様ゲームを複数エンジンで実装した横並び比較。テーマ × エンジンの各デモを開けます。</div>
+  <div class="note">画像読込のため <code>file://</code> 直開きは不可。<code>demo/</code> をルートにHTTP配信して開くこと（例: <code>cd demo &amp;&amp; python -m http.server 8000</code>）。</div>
+</header>
+<main>
+  <div class="tabs">
+    <button class="tab active" data-cat="2d">2D（13テーマ × 7エンジン）</button>
+    <button class="tab" data-cat="3d">3D（10テーマ × 4エンジン）</button>
+  </div>
+
+  <div class="bench" id="bench"></div>
+
+  <div class="grid active" id="grid-2d"></div>
+  <div class="grid" id="grid-3d"></div>
+</main>
+
+<script>
+const DATA = {
+  '2d': {
+    bench: '2d/_bench/index.html',
+    engines: ['Phaser4','PixiJS','Babylon.js','LittleJS','three.js','KAPLAY','A-Frame'],
+    themes: [
+      ['01','弾幕STG（縦スクロールシューティング）'],
+      ['02','トップダウン・サバイバー'],
+      ['03','トップダウンRPG探索（マップ歩行）'],
+      ['04','ブロック崩し（マルチボール）'],
+      ['05','横スクロールアクション'],
+      ['06','タワーディフェンス（経路探索 × 多数ユニット追従）'],
+      ['07','物理パズル（剛体物理エンジン統合 / 投擲物理）'],
+      ['08','パーティクル / 魔法エフェクトデモ（GPUパーティクル）'],
+      ['09','アイソメトリック都市/農場（深度ソート）'],
+      ['10','マッチ3パズル（大量トゥイーン）'],
+      ['11','2Dダイナミックライティング / 影'],
+      ['12','フォーリングサンド / セルオートマトン'],
+      ['13','大量テキスト / UI 描画'],
+    ],
+  },
+  '3d': {
+    bench: '3d/_bench/index.html',
+    engines: ['three.js','Babylon.js','PlayCanvas','A-Frame'],
+    themes: [
+      ['01','インスタンス小惑星フィールド（3Dシューティング）'],
+      ['02','3D剛体物理（箱タワー崩し）'],
+      ['03','スキンドキャラ大群（glTF + スケルタルアニメ）'],
+      ['04','GPUパーティクル（魔法/噴水エフェクト）'],
+      ['05','広域地形 + フラスタムカリング / LOD / 描画距離'],
+      ['06','動的シャドウ光源（多数のリアルタイム影マップ）'],
+      ['07','ボクセルチャンク再生成（動的メッシュ再構築）'],
+      ['08','PBR マテリアル + ポストプロセス（Bloom）'],
+      ['09','3D ナビ群衆（グリッド A* 経路探索）'],
+      ['10','大量レイキャスト（LIDAR スキャナ）'],
+    ],
+  },
+};
+
+function buildGrid(cat){
+  const d = DATA[cat];
+  return d.themes.map(([no,ttl])=>`
+    <div class="theme">
+      <div class="theme-hd"><span class="theme-no">${no}</span><span class="theme-ttl">${ttl}</span></div>
+      <div class="engs">${d.engines.map(e=>
+        `<a href="${cat}/${no}/${e}/index.html">${e}</a>`).join('')}</div>
+    </div>`).join('');
+}
+
+document.getElementById('grid-2d').innerHTML = buildGrid('2d');
+document.getElementById('grid-3d').innerHTML = buildGrid('3d');
+
+function showBench(cat){
+  document.getElementById('bench').innerHTML =
+    `<a href="${DATA[cat].bench}">▶ ${cat.toUpperCase()} 自動FPS計測ハーネス（_bench）</a>`;
+}
+showBench('2d');
+
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick = ()=>{
+    const cat = t.dataset.cat;
+    document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active', x===t));
+    document.querySelectorAll('.grid').forEach(g=>g.classList.remove('active'));
+    document.getElementById('grid-'+cat).classList.add('active');
+    showBench(cat);
+  };
+});
+</script>
+</body>
+</html>

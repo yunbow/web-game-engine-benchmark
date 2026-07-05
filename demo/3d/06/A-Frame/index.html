@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>3D T5 動的シャドウ光源 — A-Frame</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0a0c12; overflow: hidden; }
+  #wrap { position: relative; width: 960px; height: 540px; margin: 0 auto; }
+  /* a-scene(embedded) のキャンバスを #wrap に収める */
+  a-scene, a-scene canvas { display: block; width: 960px !important; height: 540px !important; }
+  #hud {
+    background: rgba(10, 16, 22, 0.60); border-radius: 6px; padding: 5px 8px;
+    position: absolute; left: 8px; top: 6px; color: #eaf2ff;
+    font: 13px/1.45 ui-monospace, Menlo, Consolas, monospace;
+    text-shadow: 0 1px 2px #000; pointer-events: none; white-space: pre; z-index: 10;
+  }
+  #help {
+    position: absolute; left: 0; right: 0; bottom: 6px; text-align: center;
+    background: rgba(10, 16, 22, 0.45); border-radius: 6px; padding: 5px 8px; color: #88a;
+    font: 11px/1.4 ui-monospace, monospace; pointer-events: none; z-index: 10;
+  }
+  #note { position: absolute; left: 8px; bottom: 6px; color: #6f7; font: 11px/1.4 ui-monospace, monospace; pointer-events: none; z-index: 10; }
+</style>
+<!-- A-Frame 1.7.0（同梱の three.js を AFRAME.THREE 経由で使う。別途 three は読み込まない） -->
+<script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+<script src="./game.js"></script>
+</head>
+<body>
+<div id="wrap">
+  <!-- 宣言的な <a-scene>。embedded で #wrap(960x540) 内に収める。シーン中身は shadowscene が動的生成 -->
+  <a-scene embedded background="color: #0a0c12" renderer="antialias: true" shadowscene>
+    <!-- カメラ: look-controls / wasd-controls を無効化し、game.js から手動制御。
+         rig(Group)は単位変換に固定し、camera 本体(object3D 'camera')を直接駆動する -->
+    <a-entity id="rig" camera="fov: 55; near: 0.5; far: 500"
+              look-controls="enabled: false" wasd-controls="enabled: false"></a-entity>
+  </a-scene>
+
+  <div id="hud"></div>
+  <div id="help">+ / - : shadow lights<br>R: reset</div>
+  <div id="note">dynamic shadows: SpotLight shadow maps (1024)</div>
+</div>
+</body>
+</html>

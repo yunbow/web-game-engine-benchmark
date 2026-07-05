@@ -1,0 +1,29 @@
+# ===== OS =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== Editor / IDE =====
+.vscode/
+.idea/
+*.swp
+*~
+
+# ===== Godot =====
+# インポートキャッシュ・エディタ状態（各テーマの Godot プロジェクト共通）
+.godot/
+.import/
+*.import
+export.cfg
+# HTML5 などのエクスポート出力先（README の手順で生成）
+build/
+*/Godot/build/
+
+# ===== Node (将来 npm を使う場合用) =====
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# ===== ログ / 一時ファイル =====
+*.log
+*.tmp

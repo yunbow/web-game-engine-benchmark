@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>テーマ13 大量動的テキスト / UI描画 ― Babylon.js</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; background: #0b0d16; height: 100%;
+    overflow: hidden; font-family: "Consolas", "Courier New", monospace;
+  }
+  #stage {
+    position: relative;
+    width: 960px;
+    height: 540px;
+    margin: 8px auto;
+  }
+  #renderCanvas {
+    width: 960px;
+    height: 540px;
+    display: block;
+    touch-action: none;
+    outline: none;
+    background: #0b0d16;
+  }
+  /* HUD は HTML オーバーレイ。Babylon 側のテキスト描画コストと
+     HUD 更新コストを分離して計測するため、キャンバス外に置く。 */
+  #hud {
+    background: rgba(10, 16, 22, 0.60); border-radius: 6px; padding: 5px 8px;
+    position: absolute; left: 8px; top: 6px; color: #eaf2ff;
+    font-size: 13px; line-height: 1.45; text-shadow: 0 0 3px #000, 0 0 3px #000;
+    pointer-events: none; white-space: pre; z-index: 10;
+  }
+  #help {
+    position: absolute; left: 0; right: 0; bottom: 6px; text-align: center;
+    background: rgba(10, 16, 22, 0.45); border-radius: 6px; padding: 5px 8px; color: #8a99a8;
+    font-size: 12px; line-height: 1.4; text-shadow: 0 0 3px #000;
+    pointer-events: none; z-index: 10;
+  }
+  .hudLabel { color: #eaf2ff; }
+  .hudVal   { color: #eaf2ff; }
+  .warn     { color: #eaf2ff; }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <canvas id="renderCanvas" width="960" height="540"></canvas>
+    <div id="hud">loading...</div>
+    <div id="help">+ / - : テキスト数 増減（±100） ・ U : 動的更新 ON/OFF ・ B : 機構切替（GUI ⇄ DynamicTexture） ・ R : リセット</div>
+  </div>
+  <!-- ベース babylon.js には GUI モジュールが含まれないため別途読み込む (BABYLON.GUI を提供) -->
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://cdn.babylonjs.com/gui/babylon.gui.min.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

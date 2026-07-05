@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>テーマ5 横スクロールアクション ― PixiJS v8</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #0c1018;
+      color: #e0e0e0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      overflow: hidden;
+    }
+    #wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    #stage {
+      position: relative;
+      box-shadow: 0 0 24px rgba(0, 0, 0, 0.6);
+      line-height: 0;
+    }
+    /* HUD は HTML オーバーレイ（キャンバスとは独立）。左上固定。 */
+    #hud {
+      background: rgba(10, 16, 22, 0.60); border-radius: 6px; padding: 5px 8px;
+      position: absolute;
+      left: 8px;
+      top: 6px;
+      margin: 0;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px;
+      line-height: 1.45;
+      color: #eaf2ff;
+      white-space: pre;
+      pointer-events: none;
+      text-shadow: 0 1px 2px #000;
+    }
+    #help {
+      position: absolute; left: 0; right: 0; bottom: 6px; text-align: center;
+      background: rgba(10, 16, 22, 0.45); border-radius: 6px; padding: 5px 8px;
+      margin-
+      font-size: 12px;
+      color: #8a99a8;
+    }
+    #title {
+      position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
+      color: #ffe66d; font: 700 30px/1.4 ui-monospace, monospace; text-shadow: 0 2px 8px #000;
+      pointer-events: none; z-index: 11;
+    }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+  <div id="wrap">
+    <div id="stage">
+      <div id="game"></div>
+      <pre id="hud">loading...</pre>
+      <div id="title">PRESS ENTER TO START<br><span style="font-size:15px; color:#bcd">— DEMO / ATTRACT MODE —</span></div>
+    </div>
+    <div id="help">
+      ENTER: start ・ ← → / A D: 移動 ・ Space / ↑ / W: ジャンプ(接地時) ・ Shift: ダッシュ ・ + / - : 敵数 増減
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/pixi.js@8/dist/pixi.min.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

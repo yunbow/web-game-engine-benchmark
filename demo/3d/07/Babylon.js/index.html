@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>3D T7 ボクセルチャンク再生成 — Babylon.js</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0b1016; overflow: hidden; }
+  #wrap { position: relative; width: 960px; height: 540px; margin: 0 auto; }
+  canvas { display: block; width: 960px; height: 540px; }
+  #hud {
+    background: rgba(10, 16, 22, 0.60); border-radius: 6px; padding: 5px 8px;
+    position: absolute; left: 8px; top: 6px; color: #eaf2ff;
+    font: 13px/1.45 ui-monospace, Menlo, Consolas, monospace;
+    text-shadow: 0 1px 2px #000; pointer-events: none; white-space: pre;
+  }
+  #help {
+    position: absolute; left: 0; right: 0; bottom: 6px; text-align: center;
+    background: rgba(10, 16, 22, 0.45); border-radius: 6px; padding: 5px 8px; color: #88a;
+    font: 11px/1.4 ui-monospace, monospace; pointer-events: none;
+  }
+  #note { position: absolute; left: 8px; bottom: 6px; color: #6f7; font: 11px/1.4 ui-monospace, monospace; pointer-events: none; }
+</style>
+<script src="https://cdn.babylonjs.com/babylon.js"></script>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="renderCanvas" width="960" height="540" touch-action="none"></canvas>
+  <div id="hud"></div>
+  <div id="help">+ / - : chunks (NC)<br>R: reset</div>
+  <div id="note">voxel chunks: rebuild + re-upload VertexData / frame</div>
+</div>
+<script src="./game.js"></script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>トップダウン・サバイバー - KAPLAY</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0; background: #000; height: 100%;
+      overflow: hidden; font-family: "Consolas", "Courier New", monospace;
+    }
+    #game-container { position: relative; width: 960px; height: 540px; margin: 0 auto; }
+    canvas { display: block; }
+    /* HTML overlay HUD (left-top). 他エンジンと同じ方式に揃える。 */
+    #hud {
+      background: rgba(10, 16, 22, 0.60); border-radius: 6px; padding: 5px 8px;
+      position: absolute; left: 8px; top: 6px; color: #eaf2ff;
+      font-size: 13px; line-height: 1.45; text-shadow: 0 0 3px #000, 0 0 3px #000;
+      pointer-events: none; white-space: pre; z-index: 10;
+    }
+    #help {
+      position: absolute; left: 0; right: 0; bottom: 6px; text-align: center;
+      background: rgba(10, 16, 22, 0.45); border-radius: 6px; padding: 5px 8px; color: #8aa0ff;
+      font-size: 12px; line-height: 1.4;
+      text-shadow: 0 0 3px #000; pointer-events: none; z-index: 10;
+    }
+    #title {
+      position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
+      color: #ffe66d; font: 700 30px/1.4 ui-monospace, monospace; text-shadow: 0 2px 8px #000;
+      pointer-events: none; z-index: 11;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <canvas id="game-canvas"></canvas>
+    <div id="hud">loading...</div>
+    <div id="help">ENTER: start&#10;Move: WASD / Arrows&#10;Fire: auto&#10;Enemy spawn +/- : [ + ] [ - ]&#10;Restart: R (after GAME OVER)</div>
+    <div id="title">PRESS ENTER TO START<br><span style="font-size:15px; color:#bcd">— DEMO / ATTRACT MODE —</span></div>
+  </div>
+  <script src="https://unpkg.com/kaplay@3001.0.19/dist/kaplay.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

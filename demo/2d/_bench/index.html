@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bench Harness — 13テーマ × 7エンジン 自動FPS計測</title>
+<style>
+  :root { color-scheme: dark; }
+  html,body{margin:0;background:#0d1117;color:#c9d1d9;font:13px/1.5 "Consolas","Courier New",monospace;}
+  header{padding:10px 14px;border-bottom:1px solid #222;}
+  h1{font-size:15px;margin:0 0 4px;color:#b6ffce;}
+  .sub{color:#8aa0ff;font-size:11px;}
+  main{display:grid;grid-template-columns:340px 1fr;gap:0;height:calc(100vh - 64px);}
+  .panel{padding:12px 14px;overflow:auto;border-right:1px solid #222;}
+  .panel h2{font-size:12px;color:#8aa0ff;margin:14px 0 6px;border-bottom:1px dashed #333;padding-bottom:3px;}
+  label{display:block;margin:2px 0;}
+  input[type=number]{width:64px;background:#161b22;color:#c9d1d9;border:1px solid #30363d;border-radius:4px;padding:2px 4px;}
+  .chk{display:inline-block;width:48%;}
+  button{background:#1f6feb;color:#fff;border:0;border-radius:6px;padding:7px 14px;cursor:pointer;font:inherit;margin:4px 4px 0 0;}
+  button.alt{background:#30363d;}
+  button:disabled{opacity:.5;cursor:default;}
+  #stage{position:relative;}
+  iframe{width:960px;height:540px;border:1px solid #30363d;background:#000;display:block;}
+  .stageinfo{padding:6px 0;color:#ffd479;}
+  table{border-collapse:collapse;width:100%;font-size:12px;margin-top:8px;}
+  th,td{border:1px solid #21262d;padding:3px 7px;text-align:right;white-space:nowrap;}
+  th{background:#161b22;color:#8aa0ff;position:sticky;top:0;}
+  td.eng,td.thm{text-align:left;color:#b6ffce;}
+  tr.err td{color:#ff7b72;}
+  .bars{margin-top:4px;}
+  .muted{color:#6e7681;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Bench Harness — 自動FPS計測（13テーマ × 7 JSエンジン）</h1>
+  <div class="sub">FPSは各ゲームのiframe内 requestAnimationFrame をハーネスが直接計測（ゲーム無改変）。負荷は合成キーで「+」を送って段階制御。<b>Chrome推奨・このタブを前面のまま放置</b>（背面タブはrAFが絞られ無効）。</div>
+</header>
+<main>
+  <section class="panel">
+    <h2>サーバ前提</h2>
+    <div class="muted">リポジトリの <code>js/</code> をルートにHTTP配信して、<code>/_bench/</code> を開くこと。<br>
+    例) <code>cd js &amp;&amp; python -m http.server 8000</code> → <code>http://localhost:8000/_bench/</code></div>
+
+    <h2>テーマ</h2>
+    <div id="themes"></div>
+    <button class="alt" data-all="themes">全切替</button>
+
+    <h2>エンジン</h2>
+    <div id="engines"></div>
+    <button class="alt" data-all="engines">全切替</button>
+
+    <h2>負荷レベル（"+"の押下回数）</h2>
+    <label>段階(カンマ区切り) <input id="levels" type="text" value="0,10,25" style="width:120px"></label>
+    <div class="muted">各レベルでデフォルトから累積でこの回数だけ "+" を送る。SPECのSTEPは全エンジン共通なので同レベル＝同負荷設定。</div>
+
+    <h2>タイミング(ms)</h2>
+    <label>起動待ち(boot) <input id="bootMs" type="number" value="3500"></label>
+    <label>整定待ち(settle) <input id="settleMs" type="number" value="1500"></label>
+    <label>計測長(sample) <input id="sampleMs" type="number" value="8000"></label>
+    <label>キー間隔(gap) <input id="keyGap" type="number" value="40"></label>
+
+    <div style="margin-top:14px">
+      <button id="run">▶ 計測開始</button>
+      <button id="stop" class="alt" disabled>■ 中止</button>
+    </div>
+    <div style="margin-top:10px">
+      <button id="csv" class="alt" disabled>⤓ CSVダウンロード</button>
+      <button id="clear" class="alt">クリア</button>
+    </div>
+  </section>
+
+  <section class="panel" id="stage">
+    <div class="stageinfo" id="stageinfo">待機中。左で対象を選び「計測開始」。</div>
+    <iframe id="frame" title="game" sandbox="allow-scripts allow-same-origin"></iframe>
+    <div id="results"></div>
+  </section>
+</main>
+
+<script>
+//============================================================================
+// 計測対象の定義 — フォルダ名そのまま（Godotは別系統=Web書き出しのため除外）
+//============================================================================
+const THEMES  = ['01','02','03','04','05','06','07','08','09','10','11','12','13'];
+const ENGINES = ['Phaser4','PixiJS','Babylon.js','LittleJS','three.js','KAPLAY','A-Frame'];
+
+// "+" を全7エンジンに効かせる合成キー（key/code/keyCode/which を全部満たす）
+const KEY_PLUS  = { key:'+', code:'Equal', keyCode:187, which:187 };
+// const KEY_MINUS = { key:'-', code:'Minus', keyCode:189, which:189 };
+
+//============================================================================
+// UI 構築
+//============================================================================
+const $ = s => document.querySelector(s);
+function mkChecks(host, items){
+  $(host).innerHTML = items.map(v =>
+    `<label class="chk"><input type="checkbox" value="${v}" checked> ${v}</label>`).join('');
+}
+mkChecks('#themes', THEMES);
+mkChecks('#engines', ENGINES);
+document.querySelectorAll('button[data-all]').forEach(b=>{
+  b.onclick = ()=>{ const boxes=document.querySelectorAll(`#${b.dataset.all} input`);
+    const to=![...boxes].every(x=>x.checked); boxes.forEach(x=>x.checked=to); };
+});
+const checked = host => [...document.querySelectorAll(`#${host} input:checked`)].map(x=>x.value);
+
+//============================================================================
+// 計測コア
+//============================================================================
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+let cancelFlag = false;
+let rows = [];
+
+function sendKey(win, spec){
+  const targets = [win, win.document, win.document.querySelector('canvas')].filter(Boolean);
+  for (const t of targets){
+    for (const type of ['keydown','keyup']){
+      try { t.dispatchEvent(new win.KeyboardEvent(type, { ...spec, bubbles:true, cancelable:true })); } catch(_){}
+    }
+  }
+}
+
+// iframe内 rAF を親から直接駆動してフレーム間隔を集める（エンジン非依存の真のFPS）
+function measureFPS(win, ms){
+  return new Promise(resolve=>{
+    const durs=[]; let last=win.performance.now(); const start=last;
+    function tick(now){
+      durs.push(now-last); last=now;
+      if (now-start < ms && !cancelFlag) win.requestAnimationFrame(tick);
+      else {
+        const elapsed = now-start;
+        const frames  = durs.length;
+        const avg = frames/(elapsed/1000);
+        const sorted=[...durs].sort((a,b)=>a-b);
+        const p99 = sorted[Math.min(sorted.length-1, Math.floor(sorted.length*0.99))] || 0;
+        resolve({ fps_avg:+avg.toFixed(1), fps_1pct_low: p99? +(1000/p99).toFixed(1):null, frames });
+      }
+    }
+    win.requestAnimationFrame(tick);
+  });
+}
+
+function readHud(win){
+  try {
+    const el = win.document.getElementById('hud');
+    const t  = el ? (el.textContent||'') : '';
+    const m  = t.match(/Objects\s*:\s*(\d+)/i);
+    return { objects: m ? +m[1] : null };
+  } catch(_){ return { objects:null }; }
+}
+
+function readPerf(win){
+  try {
+    const res = win.performance.getEntriesByType('resource');
+    const transfer = res.reduce((s,r)=>s+(r.transferSize||0),0);
+    const nav = win.performance.getEntriesByType('navigation')[0];
+    return { transferKB: Math.round(transfer/1024), initMs: nav? Math.round(nav.domContentLoadedEventEnd):null };
+  } catch(_){ return { transferKB:null, initMs:null }; }
+}
+
+function loadGame(theme, engine, bootMs){
+  return new Promise((resolve,reject)=>{
+    const frame = $('#frame');
+    let done=false;
+    const to = setTimeout(()=>{ if(!done){done=true; reject(new Error('load timeout'));} }, bootMs+8000);
+    frame.onload = async ()=>{
+      // onload後さらにboot待ちでゲーム起動を安定させる
+      await sleep(bootMs);
+      if(done) return; clearTimeout(to); done=true;
+      try { resolve(frame.contentWindow); }
+      catch(e){ reject(e); }
+    };
+    frame.src = `../${theme}/${engine}/index.html`;
+  });
+}
+
+async function runOne(theme, engine, cfg){
+  const win = await loadGame(theme, engine, cfg.bootMs);
+  if (!win || !win.document.querySelector('canvas')) throw new Error('no canvas (起動失敗?)');
+  let pressed = 0;
+  const out = [];
+  for (const lvl of cfg.levels){
+    const delta = lvl - pressed;
+    for (let i=0;i<delta;i++){ sendKey(win, KEY_PLUS); await sleep(cfg.keyGap); }
+    pressed = lvl;
+    await sleep(cfg.settleMs);                // 整定
+    const fps  = await measureFPS(win, cfg.sampleMs);
+    const hud  = readHud(win);
+    const perf = readPerf(win);
+    out.push({ theme, engine, level:lvl, ...fps, ...hud, ...perf });
+    if (cancelFlag) break;
+  }
+  return out;
+}
+
+//============================================================================
+// 進行 + 結果表
+//============================================================================
+function renderTable(){
+  const cols = ['theme','engine','level','fps_avg','fps_1pct_low','objects','transferKB','initMs','frames'];
+  const head = '<tr>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr>';
+  const body = rows.map(r=>{
+    const cls = r.error ? ' class="err"' : '';
+    if (r.error) return `<tr class="err"><td class="thm">${r.theme}</td><td class="eng">${r.engine}</td><td colspan="7" style="text-align:left">${r.error}</td></tr>`;
+    return '<tr>'+cols.map(c=>{
+      const v = r[c]==null?'':r[c];
+      const cl = c==='theme'?'thm':c==='engine'?'eng':'';
+      return `<td class="${cl}">${v}</td>`;
+    }).join('')+'</tr>';
+  }).join('');
+  $('#results').innerHTML = `<table>${head}${body}</table>`;
+}
+
+function toCSV(){
+  const cols = ['theme','engine','level','fps_avg','fps_1pct_low','objects','transferKB','initMs','frames','error'];
+  const esc = v => v==null?'':(/[",\n]/.test(''+v)?`"${(''+v).replace(/"/g,'""')}"`:v);
+  return cols.join(',')+'\n'+rows.map(r=>cols.map(c=>esc(r[c])).join(',')).join('\n');
+}
+
+$('#run').onclick = async ()=>{
+  const cfg = {
+    levels:  $('#levels').value.split(',').map(s=>parseInt(s.trim(),10)).filter(n=>!isNaN(n)),
+    bootMs:  +$('#bootMs').value, settleMs:+$('#settleMs').value,
+    sampleMs:+$('#sampleMs').value, keyGap:+$('#keyGap').value,
+  };
+  const themes = checked('themes'), engines = checked('engines');
+  if(!themes.length||!engines.length){ alert('テーマ/エンジンを選択してください'); return; }
+  cancelFlag=false; rows=[]; renderTable();
+  $('#run').disabled=true; $('#stop').disabled=false; $('#csv').disabled=true;
+  const total = themes.length*engines.length; let i=0;
+  outer:
+  for (const t of themes){
+    for (const e of engines){
+      i++;
+      $('#stageinfo').textContent = `[${i}/${total}] テーマ${t} / ${e} 計測中…`;
+      try {
+        const res = await runOne(t, e, cfg);
+        rows.push(...res);
+      } catch(err){
+        rows.push({ theme:t, engine:e, error:String(err.message||err) });
+      }
+      renderTable();
+      if (cancelFlag) break outer;
+    }
+  }
+  $('#stageinfo').textContent = cancelFlag ? '中止しました。' : `完了（${rows.length}行）。CSVをダウンロードできます。`;
+  $('#run').disabled=false; $('#stop').disabled=true; $('#csv').disabled = rows.length===0;
+  $('#frame').src='about:blank';
+};
+$('#stop').onclick = ()=>{ cancelFlag=true; $('#stop').disabled=true; };
+$('#clear').onclick = ()=>{ rows=[]; renderTable(); $('#csv').disabled=true; $('#stageinfo').textContent='クリアしました。'; };
+$('#csv').onclick = ()=>{
+  const blob=new Blob([toCSV()],{type:'text/csv'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='bench_results.csv'; a.click(); URL.revokeObjectURL(a.href);
+};
+</script>
+</body>
+</html>

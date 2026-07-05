@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>3D T3 箱タワー崩し — A-Frame + physics-system</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0a0c10; overflow: hidden; }
+  #wrap { position: relative; width: 960px; height: 540px; margin: 0 auto; }
+  /* a-scene(embedded) のキャンバスを #wrap(960x540) に収める */
+  a-scene, a-scene canvas { display: block; width: 960px !important; height: 540px !important; }
+  #hud {
+    background: rgba(10, 16, 22, 0.60); border-radius: 6px; padding: 5px 8px;
+    position: absolute; left: 8px; top: 6px; color: #eaf2ff;
+    font: 13px/1.45 ui-monospace, Menlo, Consolas, monospace;
+    text-shadow: 0 1px 2px #000; pointer-events: none; white-space: pre; z-index: 10;
+  }
+  #help {
+    position: absolute; left: 0; right: 0; bottom: 6px; text-align: center;
+    background: rgba(10, 16, 22, 0.45); border-radius: 6px; padding: 5px 8px; color: #88a;
+    font: 11px/1.4 ui-monospace, monospace; pointer-events: none; z-index: 10;
+  }
+  #note {
+    position: absolute; left: 8px; bottom: 6px; color: #6f7;
+    font: 11px/1.4 ui-monospace, monospace; pointer-events: none; z-index: 10;
+  }
+</style>
+<!-- A-Frame 1.7.0（同梱の three.js を AFRAME.THREE 経由で使う） -->
+<script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+<!-- ammo.js（Bullet の WASM ポート）。aframe-physics-system の ammo driver の前提（別途読込必須） -->
+<script src="https://cdn.jsdelivr.net/gh/MozillaReality/ammo.js@8bbc0ea/builds/ammo.wasm.js"></script>
+<!-- aframe-physics-system（現代A-Frame対応の保守fork @c-frame）。ammo driver 同梱の非minビルド -->
+<script src="https://cdn.jsdelivr.net/npm/@c-frame/aframe-physics-system@4.2.2/dist/aframe-physics-system.js"></script>
+<script src="./game.js"></script>
+</head>
+<body>
+<div id="wrap">
+  <!-- 宣言的な <a-scene>。embedded で #wrap(960x540) 内に収める。物理は ammo driver / 重力 (0,-20,0) -->
+  <a-scene embedded background="color: #0a0c10" renderer="antialias: true"
+           physics="driver: ammo; gravity: 0 -20 0; debug: false" game-t3>
+    <!-- カメラ: look/wasd-controls を無効化し game.js から手動制御（rig=Group, camera本体を直接駆動） -->
+    <a-entity id="rig" camera="fov: 50; near: 0.1; far: 2000"
+              look-controls="enabled: false" wasd-controls="enabled: false"
+              position="0 0 0"></a-entity>
+
+    <!-- 環境光 + 平行光1灯（上方やや手前から） -->
+    <a-light type="ambient" color="#8899bb" intensity="0.6"></a-light>
+    <a-light type="directional" color="#ffffff" intensity="1.1" position="0.4 1 0.6"></a-light>
+
+    <!-- 床（静的・大判box, 上面 y=0）。restitution 0.1 / friction 0.8 は body-loaded で btRigidBody に設定 -->
+    <a-box id="ground" position="0 -1 0" depth="400" height="2" width="400"
+           color="#232830"
+           ammo-body="type: static; restitution: 0.1"
+           ammo-shape="type: box; fit: manual; halfExtents: 200 1 200"></a-box>
+  </a-scene>
+
+  <div id="hud">loading ammo…</div>
+  <div id="help">+ / - : boxes (rebuild)<br>Space: fire&nbsp;&nbsp;R: reset</div>
+  <div id="note">physics: aframe-physics-system (ammo/cannon)</div>
+</div>
+</body>
+</html>

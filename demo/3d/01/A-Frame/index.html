@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>3D T1 インスタンス小惑星フィールド — A-Frame</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #05060a; overflow: hidden; }
+  #wrap { position: relative; width: 960px; height: 540px; margin: 0 auto; }
+  /* a-scene(embedded) のキャンバスを #wrap に収める */
+  a-scene, a-scene canvas { display: block; width: 960px !important; height: 540px !important; }
+  #hud {
+    background: rgba(10, 16, 22, 0.60); border-radius: 6px; padding: 5px 8px;
+    position: absolute; left: 8px; top: 6px; color: #eaf2ff;
+    font: 13px/1.45 ui-monospace, Menlo, Consolas, monospace;
+    text-shadow: 0 1px 2px #000; pointer-events: none; white-space: pre; z-index: 10;
+  }
+  #help {
+    position: absolute; left: 0; right: 0; bottom: 6px; text-align: center;
+    background: rgba(10, 16, 22, 0.45); border-radius: 6px; padding: 5px 8px; color: #88a;
+    font: 11px/1.4 ui-monospace, monospace; pointer-events: none; z-index: 10;
+  }
+  #over {
+    position: absolute; inset: 0; display: none; place-items: center;
+    color: #ff6b6b; font: 700 36px/1.2 ui-monospace, monospace; text-shadow: 0 2px 6px #000; z-index: 10;
+  }
+  #title {
+    position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
+    color: #ffe66d; font: 700 30px/1.4 ui-monospace, monospace; text-shadow: 0 2px 8px #000;
+    pointer-events: none; z-index: 11;
+  }
+</style>
+<!-- A-Frame 1.7.x（同梱の three.js を AFRAME.THREE 経由で使う。別途 three は読み込まない） -->
+<script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+<script src="./game.js"></script>
+</head>
+<body>
+<div id="wrap">
+  <!-- 宣言的な <a-scene>。embedded で #wrap(960x540) 内に収める -->
+  <a-scene embedded background="color: #05060a" renderer="antialias: true" game-field>
+    <!-- カメラ: look-controls / wasd-controls を無効化し、game.js から手動制御 -->
+    <!-- rig(Group)は単位変換(0 0 0)に固定し、game.js が camera 本体(object3D 'camera')を直接駆動する -->
+    <a-entity id="rig" camera="fov: 60; near: 0.1; far: 2000"
+              look-controls="enabled: false" wasd-controls="enabled: false"
+              position="0 0 0"></a-entity>
+
+    <!-- 環境光 + 平行光1灯（方向 (-0.5,-1,-0.3) 正規化, 白, 強度1.0） -->
+    <a-light type="ambient" color="#6677aa" intensity="0.7"></a-light>
+    <a-light type="directional" color="#ffffff" intensity="1.0" position="0.5 1 0.3"></a-light>
+  </a-scene>
+
+  <div id="hud"></div>
+  <div id="help">ENTER: start<br>WASD / Arrows: move<br>Auto-fire<br>+ / - : asteroids<br>P: autoplay&nbsp;&nbsp;R: restart</div>
+  <div id="over">GAME OVER<br><span style="font-size:16px">press R</span></div>
+  <div id="title">PRESS ENTER TO START<br><span style="font-size:15px; color:#bcd">— DEMO / ATTRACT MODE —</span></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Theme11 2D Dynamic Lighting / Shadows - Babylon.js</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #08080c;
+    color: #e0e0e0;
+    font-family: Consolas, "Courier New", monospace;
+    overflow: hidden;
+  }
+  /* three.js 版と同じく #wrap で上下中央寄せ。#stage は 960x540 固定。 */
+  #wrap {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; height: 100vh;
+  }
+  #stage {
+    position: relative;
+    width: 960px;
+    height: 540px;
+  }
+  #renderCanvas {
+    width: 960px;
+    height: 540px;
+    display: block;
+    touch-action: none;
+    outline: none;
+    background: #000000;
+  }
+  #hud {
+    background: rgba(10, 16, 22, 0.60); border-radius: 6px; padding: 5px 8px;
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    color: #eaf2ff;
+    font-size: 13px;
+    line-height: 1.45;
+    pointer-events: none;
+    white-space: pre;
+    z-index: 10;
+  }
+  #help {
+    position: absolute; left: 0; right: 0; bottom: 6px; text-align: center;
+    background: rgba(10, 16, 22, 0.45); border-radius: 6px; padding: 5px 8px;
+    font-size: 12px;
+    color: #b0b0b0;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .hudLabel { color: #eaf2ff; }
+  .hudVal   { color: #eaf2ff; }
+  .warn     { color: #eaf2ff; }
+</style>
+</head>
+<body>
+  <div id="wrap">
+    <div id="stage">
+      <canvas id="renderCanvas" width="960" height="540"></canvas>
+      <div id="hud">loading...</div>
+    </div>
+    <div id="help">WASD/矢印: 移動 &nbsp; +/-: 光源数 ±6 &nbsp; L: 影 ON/OFF &nbsp; R: リセット</div>
+  </div>
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

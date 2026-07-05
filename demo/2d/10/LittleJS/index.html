@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>テーマ10 マッチ3パズル ― LittleJS</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #101418;
+      color: #e0e0e0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      height: 100%;
+      overflow: hidden;
+    }
+    /* three.js 版と同じ固定 960x540 のステージ。横方向は中央寄せ・上端配置。
+       LittleJS は engineInit の rootElement に渡した要素へ canvas を生成し、
+       その要素の style.cssText を毎回上書きする(margin:0 等)。stylesheet の
+       !important は inline 非!important より強いため、ここで固定値を死守する。 */
+    #game-container {
+      position: relative !important;
+      width: 960px !important; height: 540px !important;
+      margin: 0 auto !important;
+    }
+    /* エンジンは canvas を transform 中央寄せ・ウィンドウ基準でスケールする。
+       !important で #game-container いっぱい(960x540・左上原点)に固定上書きする。 */
+    #game-container canvas {
+      position: absolute !important;
+      left: 0 !important; top: 0 !important;
+      width: 960px !important; height: 540px !important;
+      transform: none !important;
+      display: block;
+    }
+    /* HUD overlay: LittleJS canvas の上に重ねる 2D HTML レイヤ */
+    #hud {
+      background: rgba(10, 16, 22, 0.60); border-radius: 6px; padding: 5px 8px;
+      position: absolute;
+      top: 6px;
+      left: 8px;
+      z-index: 10;
+      color: #eaf2ff;
+      font: 13px/1.45 "Consolas", "Courier New", monospace;
+      text-shadow: 1px 1px 2px #000, 0 0 4px #000;
+      pointer-events: none;
+      white-space: pre;
+    }
+    #help {
+      position: absolute; left: 0; right: 0; bottom: 6px; text-align: center;
+      background: rgba(10, 16, 22, 0.45); border-radius: 6px; padding: 5px 8px;
+      z-index: 10;
+      color: #8a99a8;
+      font: 12px/1.4 "Consolas", "Courier New", monospace;
+      text-shadow: 1px 1px 2px #000;
+      pointer-events: none;
+    }
+    #title {
+      position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
+      color: #ffe66d; font: 700 30px/1.4 ui-monospace, monospace; text-shadow: 0 2px 8px #000;
+      pointer-events: none; z-index: 11;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <div id="hud">loading...</div>
+    <div id="help">
+      ENTER: start&#10;クリック2回(隣接2セル) : スワップ ・ Space : オートプレイ ON/OFF ・ + / - : 盤面サイズ N ・ R : リセット
+    </div>
+    <div id="title">PRESS ENTER TO START<br><span style="font-size:15px; color:#bcd">— DEMO / ATTRACT MODE —</span></div>
+  </div>
+
+  <!-- LittleJS engine via CDN. Primary: unpkg. If it fails to load, the
+       jsDelivr fallback below is injected. See README for details.
+       注意: 素の unpkg は ESM を返すため /dist/littlejs.min.js (classic global build) を直読みする。 -->
+  <script>
+    window.addEventListener('error', function (e) {
+      // 主CDN(unpkg)の script タグが失敗したら jsDelivr ミラーへ切替。
+      if (e && e.target && e.target.tagName === 'SCRIPT' &&
+          /unpkg\.com\/littlejsengine/.test(e.target.src || '')) {
+        var s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/littlejsengine/dist/littlejs.min.js';
+        s.onload = function () {
+          var g = document.createElement('script');
+          g.src = 'game.js';
+          document.body.appendChild(g);
+        };
+        document.body.appendChild(s);
+      }
+    }, true);
+  </script>
+  <script src="https://unpkg.com/littlejsengine/dist/littlejs.min.js"></script>
+  <script>
+    // LittleJS が確実にロードできた場合のみ game.js を読む(主経路)。
+    if (window.LittleJS || window.engineInit) {
+      var g = document.createElement('script');
+      g.src = 'game.js';
+      document.body.appendChild(g);
+    }
+  </script>
+</body>
+</html>

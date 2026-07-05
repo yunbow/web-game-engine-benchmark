@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>3D T4 スキンドキャラ大群 — A-Frame</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #10131a; overflow: hidden; }
+  #wrap { position: relative; width: 960px; height: 540px; margin: 0 auto; }
+  /* a-scene(embedded) のキャンバスを #wrap(960x540) に収める */
+  a-scene, a-scene canvas { display: block; width: 960px !important; height: 540px !important; }
+  #hud {
+    background: rgba(10, 16, 22, 0.60); border-radius: 6px; padding: 5px 8px;
+    position: absolute; left: 8px; top: 6px; color: #eaf2ff;
+    font: 13px/1.45 ui-monospace, Menlo, Consolas, monospace;
+    text-shadow: 0 1px 2px #000; pointer-events: none; white-space: pre; z-index: 10;
+  }
+  #help {
+    position: absolute; left: 0; right: 0; bottom: 6px; text-align: center;
+    background: rgba(10, 16, 22, 0.45); border-radius: 6px; padding: 5px 8px; color: #88a;
+    font: 11px/1.4 ui-monospace, monospace; pointer-events: none; z-index: 10;
+  }
+  #note {
+    position: absolute; left: 8px; bottom: 6px; color: #6f7;
+    font: 11px/1.4 ui-monospace, monospace; pointer-events: none; z-index: 10;
+  }
+</style>
+<!-- A-Frame 1.7.0（同梱の three.js = super-three@0.173.4 を AFRAME.THREE 経由で使う。別途 three は読み込まない） -->
+<script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+<script src="./game.js"></script>
+</head>
+<body>
+<div id="wrap">
+  <!-- 宣言的な <a-scene>。embedded で #wrap(960x540) 内に収める -->
+  <a-scene embedded background="color: #10131a" renderer="antialias: true" crowd>
+    <!-- 共有 glTF を a-assets でプリロード -->
+    <a-assets>
+      <a-asset-item id="man" src="../assets/CesiumMan.glb"></a-asset-item>
+    </a-assets>
+
+    <!-- カメラ: look-controls / wasd-controls を無効化し、game.js から camera 本体を手動制御 -->
+    <a-entity id="rig" camera="fov: 50; near: 0.1; far: 2000"
+              look-controls="enabled: false" wasd-controls="enabled: false"
+              position="0 0 0"></a-entity>
+
+    <!-- 環境光 + 平行光1灯（上方やや手前） -->
+    <a-light type="ambient" color="#8899bb" intensity="0.8"></a-light>
+    <a-light type="directional" color="#ffffff" intensity="1.1" position="0.4 1 0.6"></a-light>
+
+    <!-- 地面（暗色） -->
+    <a-plane rotation="-90 0 0" width="400" height="400" color="#1b2030"></a-plane>
+
+    <!-- glTF を A-Frame 同梱の GLTFLoader でロードするための隠しエンティティ。
+         model-loaded で baseModel/animations を取得し、SkeletonUtils.clone で N 体複製する。 -->
+    <a-entity id="loader" gltf-model="#man" visible="false" position="0 -1000 0"></a-entity>
+  </a-scene>
+
+  <div id="hud">loading glTF…</div>
+  <div id="help">+ / - : characters (rebuild)<br>R: reset</div>
+  <div id="note">skinned crowd: glTF + AnimationMixer</div>
+</div>
+</body>
+</html>

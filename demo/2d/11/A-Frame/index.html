@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>テーマ11 2Dダイナミックライティング / 影 ― A-Frame</title>
+  <style>
+    html, body {
+      margin: 0; padding: 0; background: #06080c; color: #e0e0e0;
+      height: 100%; overflow: hidden;
+      font-family: "Segoe UI", system-ui, sans-serif;
+    }
+    #wrap {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; height: 100vh;
+    }
+    #game-container {
+      position: relative; width: 960px; height: 540px;
+      box-shadow: 0 0 24px rgba(0, 0, 0, 0.6); line-height: 0;
+    }
+    /* A-Frame の <a-scene embedded> は親要素を埋める。 */
+    a-scene { display: block; width: 960px; height: 540px; }
+    #hud {
+      background: rgba(10, 16, 22, 0.60); border-radius: 6px; padding: 5px 8px;
+      position: absolute; left: 8px; top: 6px; margin: 0;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px; line-height: 1.45; color: #eaf2ff;
+      white-space: pre; pointer-events: none; text-shadow: 0 1px 2px #000; z-index: 10;
+    }
+    #help {
+      position: absolute; left: 0; right: 0; bottom: 6px; text-align: center;
+      background: rgba(10, 16, 22, 0.45); border-radius: 6px; padding: 5px 8px;
+      margin- font-size: 12px; color: #8a99a8;
+    }
+  </style>
+  <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+  <script src="game.js"></script>
+</head>
+<body>
+  <div id="wrap">
+    <div id="game-container">
+      <!-- シーンは宣言的に記述。ゲーム本体は lighting-game コンポーネントが駆動する。 -->
+      <a-scene embedded background="color: #05070b"
+               vr-mode-ui="enabled: false"
+               device-orientation-permission-ui="enabled: false"
+               renderer="antialias: false">
+        <a-entity lighting-game></a-entity>
+      </a-scene>
+      <pre id="hud">loading...</pre>
+    </div>
+    <div id="help">
+      WASD / 矢印: 移動 ・ + / - : 光源数 増減 ・ L: 影 ON/OFF ・ R: リセット
+    </div>
+  </div>
+</body>
+</html>

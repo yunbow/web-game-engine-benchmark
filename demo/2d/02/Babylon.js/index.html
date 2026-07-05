@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>トップダウン・サバイバー - Babylon.js</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; background: #000; height: 100%;
+    overflow: hidden; font-family: "Consolas", "Courier New", monospace;
+  }
+  #wrap {
+    position: relative; width: 960px; height: 540px; margin: 0 auto;
+  }
+  #renderCanvas {
+    width: 960px;
+    height: 540px;
+    display: block;
+    touch-action: none;
+    outline: none;
+    background: #0a1a0a;
+  }
+  #hud {
+    background: rgba(10, 16, 22, 0.60); border-radius: 6px; padding: 5px 8px;
+    position: absolute; left: 8px; top: 6px; color: #eaf2ff;
+    font-size: 13px; line-height: 1.45; text-shadow: 0 0 3px #000, 0 0 3px #000;
+    pointer-events: none; white-space: pre; z-index: 10;
+  }
+  #help {
+    position: absolute; left: 0; right: 0; bottom: 6px; text-align: center;
+    background: rgba(10, 16, 22, 0.45); border-radius: 6px; padding: 5px 8px; color: #8aa0ff;
+    font-size: 12px; line-height: 1.4;
+    text-shadow: 0 0 3px #000; pointer-events: none; z-index: 10;
+  }
+  #title {
+    position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
+    color: #ffe66d; font: 700 30px/1.4 ui-monospace, monospace; text-shadow: 0 2px 8px #000;
+    pointer-events: none; z-index: 11;
+  }
+</style>
+</head>
+<body>
+  <div id="wrap">
+    <canvas id="renderCanvas" width="960" height="540"></canvas>
+    <div id="hud"></div>
+    <div id="help">ENTER: start&#10;Move: WASD / Arrows&#10;Fire: auto&#10;Enemy spawn +/- : [ + ] [ - ]&#10;Restart: R (after GAME OVER)</div>
+    <div id="title">PRESS ENTER TO START<br><span style="font-size:15px; color:#bcd">— DEMO / ATTRACT MODE —</span></div>
+  </div>
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
